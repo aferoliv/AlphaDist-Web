@@ -19,7 +19,7 @@ class Tela:
         self.caixa_botao = tk.Frame(master, borderwidth=0, relief='sunken')
         self.caixa_alfa = tk.Frame(master, borderwidth=5, relief='raised')
         self.caixa_grafico = tk.Frame(master, borderwidth=10, relief='ridge')
-        self.caixa_pKa = tk.Frame(master, borderwidth=2, relief='solid')
+        self.caixa_pKa = tk.Frame(master, borderwidth=2, relief='raised')
         self.lista=lista
     #
     # combo
@@ -48,9 +48,7 @@ class Tela:
         self.caixa_alfa.grid(column=2, row=6, padx=10, pady=10)  # .place(height=500, width=50000)
         # CAIXA GRÁFICOS
         self.caixa_grafico.grid(column=0, row=6, padx=10, pady=10)  # .place(height=100, width=100)
-        #
         # CAIXA pKa
-        #
         self.caixa_pKa.grid(column=1, row=6, padx=10, pady=10)
         self.txt_pKa_titulo = tk.Label(self.caixa_pKa, text='------ pKa ------')
         self.pH_coleta=3
@@ -67,7 +65,7 @@ class Tela:
         return numero_sistema
 
     def arredonda(self, valor):
-        if valor > 0.001:
+        if abs(valor) > 0.001:
             texto = '{:.5f}'.format((valor))
         else:
             texto = '{:.5e}'.format((valor))
@@ -88,10 +86,8 @@ class Tela:
         pH = (self.valor_pH())
         pH=float(pH)
         sistema =bc.Meio(pH)
-        print('******','Lista_alfa', pH, type(alfa), carga,(pKas[1]), '*****')
         self.Limpa_frame()
         for i, item in enumerate(alfa):
-            print('\\\\', item, '////', pKas[i])
             if i == 0:
 
                 txt_alfa0 = tk.Label(self.caixa_alfa, text='{unicodes_value}0'.format(unicodes_value='\u03B1'))
@@ -115,7 +111,6 @@ class Tela:
                 txt_pKa1.grid(column=0, row=1, padx=10, pady=10)
                 txt_pKa1v.grid(column=2, row=1, padx=10, pady=10)
                 #
-
             elif i == 2:
                 txt_alfa2 = tk.Label(self.caixa_alfa, text='{unicodes_value}2'.format(unicodes_value='\u03B1'))
                 txt_val2 = tk.Label(self.caixa_alfa, text=self.arredonda((alfa[i])))
@@ -126,7 +121,7 @@ class Tela:
                 txt_pKa2v = tk.Label(self.caixa_pKa, text=(pKas[i - 1]))
                 txt_pKa2.grid(column=0, row=2, padx=10, pady=10)
                 txt_pKa2v.grid(column=2, row=2, padx=10, pady=10)
-
+                #
             elif i == 3:
 
                 txt_alfa3 = tk.Label(self.caixa_alfa, text='{unicodes_value}3'.format(unicodes_value='\u03B1'))
@@ -200,8 +195,6 @@ class Tela:
         txt_qef.grid(column=7, row=i + 4, padx=10, pady=10)
         txt_wat1 = tk.Label(self.caixa_alfa, text='WAT')
         #
-        print(type(float(pH)))
-        #
         txt_wat = tk.Label(self.caixa_alfa, text=self.arredonda(sistema.wat))
         txt_wat1.grid(column=6, row=i + 5, padx=10, pady=10)
         txt_wat.grid(column=7, row=i + 5, padx=10, pady=10)
@@ -216,14 +209,15 @@ class Tela:
         if pH == '':
             pH = '3'
         #
-        #print('------>',nome_sistema, type(pH), numero_sistema, '<------')
-        #
         sistema=bc.BronstedDados(numero_sistema)
-        pKas, alfa,carga_efetiva=sistema.alfas(pH)
+        pKas, alfa,carga_efetiva = sistema.alfas(pH)
         #
-        #print('****',"coleta_OK",pKas, alfa,carga_efetiva)
         #
         self.Lista_alfa(pH, alfa, carga_efetiva, pKas)
+        #
+        #
+        x, dados, carga = sistema.intervalo_pH(numero_sistema)
+        self.graficos(x, dados, carga)
         return numero_sistema, pH, nome_sistema
 
 
@@ -235,3 +229,20 @@ class Tela:
         self.sair_button = tk.Button(self.caixa_botao, text="Sair", command=master.quit)
         self.Ok_button.grid(column=1, row=5, padx=10, pady=10)
         self.sair_button.grid(column=3, row=5, padx=10, pady=10)
+
+
+    def graficos(self,x, dados, carga):
+        figura = plt.figure(figsize=(4, 4))
+        plt.subplot(211)  # linha, coluna, número do grafico
+        plt.axis([0, 14, 0, 1.05])  # lista [xmin, xmax, ymin, ymax]
+        plt.plot(x, dados)
+        plt.subplot(212)
+        plt.axis([0, 14, min(carga) - .5, max(carga) + .5])  # lista [xmin, xmax, ymin, ymax]
+        plt.plot(x, carga)
+        #
+        #
+        #
+        canva = FigureCanvasTkAgg(figura, self.caixa_grafico)
+        canva.get_tk_widget().grid(column=0, row=6, padx=10, pady=10)
+        #
+        # plt.show()

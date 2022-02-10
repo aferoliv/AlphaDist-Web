@@ -12,7 +12,7 @@ from sys import exit
 # --------------------------FUNÇÕES -ALFA DIST-------------------------
 class BronstedLista:
     def __init__(self):
-        self.biblioteca = "titger.xlsx"
+        self.biblioteca = "Bronsted.xlsx"
         self.dados_pKa = pd.read_excel(self.biblioteca)
         lista=self.dados_pKa.iloc[:,0]
         self.lista_sistemas=lista.values.tolist()
@@ -28,7 +28,6 @@ class BronstedDados:
         self.nCOO=lista_ABB.dados_pKa.iloc[selecao, 3]
         self.pKa=lista_ABB.dados_pKa.iloc[selecao, 4:12]
         self.conc=0
-        #print("-----",selecao,self.carga,self.valores,'-----')
 
     def linhas(self,selecao, dados_pKa):
         self.valores_linha = dados_pKa.iloc[selecao]
@@ -36,9 +35,9 @@ class BronstedDados:
         return valor
 
     def alfas(self,pH):
+        pH=float(pH)
         valores_linha=list(self.valores)
         sistema = valores_linha[0]
-        print('//->','valores-linha',valores_linha,"<-////")
         carga_max = valores_linha[2]
         N_pKa = valores_linha[1] + valores_linha[3]
         pKas = valores_linha[4:11]
@@ -64,9 +63,23 @@ class BronstedDados:
 
         return (pKas, alfa_valores, carga_efetiva)
 
+    def intervalo_pH(self, valores_linha):
+        dados = []
+        carga = []
+        resolucao = 10
+        x = []
+        for i in range(0, 14 * resolucao, 1):
+            pH1 = i / resolucao
+            pKas, temp1, temp2 = self.alfas(pH1)
+            dados.append(temp1)
+            carga.append(temp2)
+            x.append(pH1)
+
+        return (x, dados, carga)
+
 
 class Meio:#
     def __init__(self,pH):
         self.pKw = 14
         self.wat=10**(-pH)-10**(pH-self.pKw)
-        print('Meio',pH, type(pH))
+

@@ -1,28 +1,29 @@
-import numpy as np
-import pandas as pd
+from pyperclip3 import copy
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import tkinter as tk
 from tkinter import ttk
 import BronstedClass as bc
-from tkinter import *
-from sys import exit
+
 class Tela:
     #
     #
     def __init__(self,master, lista):
         self.master=master
-        master.geometry("1000x600+200+50")
+        master.geometry("900x800+200+50")
         self.title="  AlfaDist "
         master.title(self.title)
+        self.lista=lista
+    #
+    #Criação das caixas de organização
+    #
         self.caixa = tk.Frame(master, borderwidth=0, relief='groove')
         self.caixa_botao = tk.Frame(master, borderwidth=0, relief='sunken')
         self.caixa_alfa = tk.Frame(master, borderwidth=5, relief='raised')
         self.caixa_grafico = tk.Frame(master, borderwidth=10, relief='ridge')
-        self.caixa_pKa = tk.Frame(master, borderwidth=2, relief='raised')
-        self.lista=lista
+        self.caixa_pKa = tk.Frame(master, borderwidth=5, relief='raised')
     #
-    # combo
+    # combo -
     #
         n = tk.StringVar()
         self.combo = ttk.Combobox(self.caixa, width=27, textvariable=n, state='readonly')
@@ -30,66 +31,91 @@ class Tela:
         self.combo['state'] = 'readonly'
         #self.combo.bind('<<ComboboxSelected>>', on_combo)
         self.combo.current(1)
-        #
-        # Entrada dos dados
-        #
-        self.caixa.grid(column=0, row=1)
+        self.combo.grid(column=1, row=1, padx=10, pady=10)
+    #
+    #Entrada dos dados
+    #
+    #  CAIXA entrada de dados
+    #
         self.texto1 = tk.Label(self.caixa, text='selecione o sistema ABBronsted')
         self.texto2 = tk.Label(self.caixa, text='pH selecionado')
-        self.pH_escrita = tk.Entry(self.caixa, text="3")
-        #
-        self.combo.grid(column=1, row=1, padx=10, pady=10)
+        self.pH_escrita = tk.Entry(self.caixa)
+        self.caixa.grid(column=0, row=1)
         self.texto1.grid(column=0, row=1, padx=10, pady=10)
         self.texto2.grid(column=0, row=2, padx=10, pady=10)
         self.pH_escrita.grid(column=1, row=2, padx=10, pady=10)
         #
 
-        # CAIXA ALFAS
+    # CAIXA ALFAS
         self.caixa_alfa.grid(column=2, row=6, padx=10, pady=10)  # .place(height=500, width=50000)
-        # CAIXA GRÁFICOS
+    # CAIXA GRÁFICOS
         self.caixa_grafico.grid(column=0, row=6, padx=10, pady=10)  # .place(height=100, width=100)
-        # CAIXA pKa
+    # CAIXA pKa
         self.caixa_pKa.grid(column=1, row=6, padx=10, pady=10)
         self.txt_pKa_titulo = tk.Label(self.caixa_pKa, text='------ pKa ------')
-        self.pH_coleta=3
-        self.numero_sistema = 3
+
+    def Botoes(self,master):
+        #  CAIXA BOTÕES
+        #
+        self.Ok_button = tk.Button(self.caixa_botao, text="    OK     ", command=self.coleta_OK)
+        self.sair_button = tk.Button(self.caixa_botao,text="     Sair    ", command=master.quit)
+        self.copia = tk.Button(self.caixa_alfa,text="Copiar valores", command=self.copiar_valores)
+        self.caixa_botao.grid(column=0, row=2, padx=10, pady=10)
+        self.Ok_button.grid(column=1, row=5, padx=10, pady=10)
+        self.sair_button.grid(column=3, row=5, padx=10, pady=10)
+
+
 
     def valor_pH(self):
+        #
+        # recolhe o valor de pH da caixa pH
+        #
         pH_coleta = self.pH_escrita.get()
         if pH_coleta=='':
             pH_coleta=3
         return pH_coleta
 
     def numero_sistema(self):
+        #
+        #verifica o sistema selecionado e armazena a posição na lista.
+        #
         numero_sistema=self.combo.current()
         return numero_sistema
 
     def arredonda(self, valor):
+        #
+        #  arredonda números abaixo de 10^-3 com 5 algarismos significativos
+        #
         if abs(valor) > 0.001:
             texto = '{:.5f}'.format((valor))
         else:
-            texto = '{:.5e}'.format((valor))
+            texto = '{:.5E}'.format((valor))
         return texto
 
     def Limpa_frame(self):
-        for i in range(0, 8):
+        for i in range(0, 7):
+
             txt_1 = tk.Label(self.caixa_alfa, text='                    ')
             txt_1.grid(column=6, row=5 + i, padx=10, pady=10)
             txt_2 = tk.Label(self.caixa_alfa, text='                    ')
             txt_2.grid(column=7, row=5 + i, padx=10, pady=10)
-            txt_3 = tk.Label(self.caixa_pKa, text='       ')
-            txt_3.grid(column=0, row=1 + i, padx=10, pady=10)
-            txt_4 = tk.Label(self.caixa_pKa, text='       ')
-            txt_4.grid(column=2, row=1 + i, padx=10, pady=10)
-    #
+            if i<6 :
+                txt_3 = tk.Label(self.caixa_pKa, text='       ')
+                txt_3.grid(column=0, row=1 + i, padx=10, pady=10)
+                txt_4 = tk.Label(self.caixa_pKa, text='       ')
+                txt_4.grid(column=2, row=1 + i, padx=10, pady=10)
+
     def Lista_alfa(self, pH, alfa, carga, pKas):
         pH = (self.valor_pH())
         pH=float(pH)
         sistema =bc.Meio(pH)
+
         self.Limpa_frame()
         for i, item in enumerate(alfa):
             if i == 0:
-
+                #
+                self.copia.grid(column=6, row=12, padx=10, pady=10)
+                #
                 txt_alfa0 = tk.Label(self.caixa_alfa, text='{unicodes_value}0'.format(unicodes_value='\u03B1'))
                 txt_val0 = tk.Label(self.caixa_alfa, text=self.arredonda((alfa[i])))
                 txt_alfa0.grid(column=6, row=2, padx=10, pady=10)
@@ -218,18 +244,29 @@ class Tela:
         #
         x, dados, carga = sistema.intervalo_pH(numero_sistema)
         self.graficos(x, dados, carga)
+        print('coleta_OK')
         return numero_sistema, pH, nome_sistema
 
-
-    def Botoes(self,master):
-        #  CAIXA BOTÕES
+    def copiar_valores(self):
         #
-        self.caixa_botao.grid(column=0, row=2, padx=10, pady=10)
-        self.Ok_button = tk.Button(self.caixa_botao, text="OK", command=self.coleta_OK)
-        self.sair_button = tk.Button(self.caixa_botao, text="Sair", command=master.quit)
-        self.Ok_button.grid(column=1, row=5, padx=10, pady=10)
-        self.sair_button.grid(column=3, row=5, padx=10, pady=10)
-
+        #
+        #
+        numero_sistema = self.combo.current()
+        pH = self.valor_pH()
+        #
+        if pH == '':
+            pH = '3'
+        sistema = bc.BronstedDados(numero_sistema)
+        pKas, alfa, carga_efetiva = sistema.alfas(pH)
+        copiado = ['pH ',pH]
+        for i,item in enumerate(alfa):
+            copiado.append('a'+str(i))
+            copiado.append(item)
+        copiado.append('carga efetiva')
+        copiado.append(carga_efetiva)
+        #a1= str(copiado[1:len(copiado)-1])
+        print(copiado)
+        copy(copiado)
 
     def graficos(self,x, dados, carga):
         figura = plt.figure(figsize=(4, 4))

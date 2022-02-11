@@ -1,12 +1,5 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import tkinter as tk
-from tkinter import ttk
-from tkinter import *
-from sys import exit
-
 
 #
 # --------------------------FUNÇÕES -ALFA DIST-------------------------
@@ -19,6 +12,7 @@ class BronstedLista:
         self.dados_pKa.columns = self.dados_pKa.iloc[0]
 
 class BronstedDados:
+
     def __init__(self,selecao):
         lista_ABB=BronstedLista()
         self.valores = lista_ABB.dados_pKa.iloc[selecao,:]          #[selecao, :]

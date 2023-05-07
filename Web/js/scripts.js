@@ -26,12 +26,11 @@ function getList_Systems() {
 // toda vez que um elemento for clicado.
 function updateDropdown_Systems() {
     const dropdownMenu = document.getElementById('dropdown_SystemsMenu');
-    const dropdownButton = document.getElementById('dropdown_Systems');
     dropdownMenu.innerHTML = ''; //Limpa Lista de Opcoes Atuais
 
     //Este Loop Itera sobre cada elemento na variavel array_Systems
     array_Systems.forEach(({ id, systemName }) => {
-        const listItem = document.createElement('li');
+        listItem = document.createElement('li');
         listItem.classList.add('dropdown-item');
         listItem.id = id;
         listItem.textContent = systemName;
@@ -43,9 +42,9 @@ function updateDropdown_Systems() {
 
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 // Esta função chama getList_Sitemas para obter a lista the Sistemas (id, nome, descricao)
-function changeDropdown_Systems(event) {    
-    selectedSystem = array_Systems.find((element) => element.id === event.target.id);    
-    console.log("Selected System: ", selectedSystem);    
+function changeDropdown_Systems(event) {
+    selectedSystem = array_Systems.find((element) => element.id === event.target.id);
+    console.log("Selected System: ", selectedSystem);
     document.getElementById('dropdown_Systems').textContent = selectedSystem.systemName;
     document.getElementById('text_SystemDescription').textContent = selectedSystem.systemDescription;
     //Inclua aqui outros elementos/parametros que precisam ser alterados quando um novo sistema for selecionado.
